@@ -1,0 +1,25 @@
+table {
+  width: 100%;
+}
+
+.mat-mdc-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+td,
+th {
+  width: 25%;
+}
+
+.component-main-heading {
+  margin-left: 20px;
+  color: #015cbb;
+}
+
+.component-main-heading-icon {
+  vertical-align: middle;
+  padding-bottom: 5px;
+  margin-right: 5px;
+  color: #015cbb;
+}
