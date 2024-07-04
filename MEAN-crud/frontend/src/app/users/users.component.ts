@@ -12,6 +12,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AddUserComponent } from './add-user/add-user.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { FlexLayoutServerModule } from '@angular/flex-layout/server';
+import { EditUserComponent } from './edit-user/edit-user.component';
+import { ConfirmationComponentComponent } from '../confirmation-component/confirmation-component.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-users',
@@ -28,6 +32,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatDialogModule,
     AddUserComponent,
     MatTooltipModule,
+    FlexLayoutServerModule,
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
@@ -41,13 +46,17 @@ export class UsersComponent {
     'password',
     'actions',
   ];
-  dataSource!: MatTableDataSource<User>;
+  dataSource: MatTableDataSource<User> = new MatTableDataSource();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   userList: User[] = [];
 
-  constructor(private userService: UserService, private matDialog: MatDialog) {}
+  constructor(
+    private userService: UserService,
+    private matDialog: MatDialog,
+    private snackbar: MatSnackBar
+  ) {}
 
   ngOnInit() {
     this.loadUsers();
@@ -55,15 +64,26 @@ export class UsersComponent {
 
   loadUsers() {
     this.userService.getUsers().subscribe((res) => {
-      this.userList = res;
+      // Sort users by _id in descending order
+      this.userList = res.sort((a, b) => {
+        if (!a._id || !b._id) {
+          return 0; // If either _id is null or undefined, consider them equal
+        }
+        return b._id.localeCompare(a._id);
+      });
       this.dataSource = new MatTableDataSource(this.userList);
-      console.log(this.userList);
+      if (this.paginator && this.sort) {
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+      }
     });
   }
 
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    if (this.paginator && this.sort) {
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+    }
   }
 
   applyFilter(event: Event) {
@@ -86,5 +106,43 @@ export class UsersComponent {
           this.loadUsers();
         }
       });
+  }
+
+  onEditUser(userOb: User) {
+    this.matDialog
+      .open(EditUserComponent, {
+        data: userOb,
+        width: '500px',
+      })
+      .afterClosed()
+      .subscribe((result: boolean) => {
+        if (result === true) {
+          this.loadUsers();
+        }
+      });
+  }
+
+  onDeleteUser(userOb: User) {
+    const dialogRef = this.matDialog.open(ConfirmationComponentComponent, {
+      width: '250px',
+      data: {},
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && result == true) {
+        this.userService.deleteUser(userOb._id).subscribe({
+          next: (res) => {
+            this.snackbar.open('User Deleted', 'X', {
+              duration: 2000,
+            });
+            this.loadUsers();
+          },
+          error: (err) => {
+            this.snackbar.open(err, 'X', { duration: 2000 });
+            this.loadUsers();
+          },
+        });
+      }
+    });
   }
 }

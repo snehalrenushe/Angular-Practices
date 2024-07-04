@@ -1,0 +1,108 @@
+<h2 mat-dialog-title style="color: #015cbb">Add User</h2>
+<mat-dialog-content class="mat-typography">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div mat-dialog-content>
+      <!-- Name START -->
+      <div fxflex="row">
+        <div fxflex="100" style="padding-left: 5px; padding-right: 5px">
+          <mat-form-field appearance="outline" style="width: 100%">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name" />
+            <mat-error *ngIf="form.controls['name'].errors?.['required']"
+              >This is Required</mat-error
+            >
+            <mat-error *ngIf="form.controls['name'].errors?.['maxLength']"
+              >1-30 characters only</mat-error
+            >
+          </mat-form-field>
+        </div>
+      </div>
+      <!-- Age and Password START -->
+      <div fxLayout="row wrap">
+        <div
+          fxFlex.gt-sm="50"
+          fxflex="100"
+          style="padding-left: 5px; padding-right: 5px; width: 100"
+        >
+          <mat-form-field appearance="outline" style="width: 100%">
+            <mat-label>Age</mat-label>
+            <input matInput formControlName="age" />
+            <mat-error *ngIf="form.controls['age'].errors?.['required']"
+              >This is Required</mat-error
+            >
+            <mat-error *ngIf="form.controls['age'].errors?.['maximum']"
+              >Maximum age should be 80</mat-error
+            >
+          </mat-form-field>
+        </div>
+        <div
+          fxFlex.gt-sm="50"
+          fxflex="100"
+          style="padding-left: 5px; padding-right: 5px; width: 100"
+        >
+          <mat-form-field appearance="outline" style="width: 100%">
+            <mat-label>Password</mat-label>
+            <input matInput formControlName="password" />
+            <mat-error *ngIf="form.controls['password'].errors?.['required']"
+              >This is Required</mat-error
+            >
+            <mat-error *ngIf="form.controls['password'].errors?.['minLength']"
+              >Minimum 4 characters required</mat-error
+            >
+            <mat-error *ngIf="form.controls['password'].errors?.['maxLength']"
+              >Maximum 10 characters only</mat-error
+            >
+          </mat-form-field>
+        </div>
+      </div>
+      <!-- Email START -->
+      <div fxflex="row">
+        <div fxflex="100" style="padding-left: 5px; padding-right: 5px">
+          <mat-form-field appearance="outline" style="width: 100%">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" />
+            <mat-error *ngIf="form.controls['email'].errors?.['required']"
+              >This is Required</mat-error
+            >
+            <mat-error *ngIf="form.controls['email'].errors?.['email']"
+              >Incorrect format of email</mat-error
+            >
+          </mat-form-field>
+        </div>
+      </div>
+      <!-- Address START -->
+      <div fxflex="row">
+        <div fxflex="100" style="padding-left: 5px; padding-right: 5px">
+          <mat-form-field appearance="outline" style="width: 100%">
+            <mat-label>Address</mat-label>
+            <textarea matInput formControlName="address"></textarea>
+            <mat-error *ngIf="form.controls['address'].errors?.['required']"
+              >This is Required</mat-error
+            >
+            <mat-error *ngIf="form.controls['address'].errors?.['maxLength']"
+              >1-30 characters only</mat-error
+            >
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+    <!-- Action Buttons -->
+    <mat-dialog-actions style="float: right">
+      <button
+        mat-button
+        [mat-dialog-close]="undefined"
+        style="margin-right: 10px"
+      >
+        CANCEL
+      </button>
+      <button
+        mat-button
+        color="primary"
+        type="submit"
+        [disabled]="form.invalid || inProcess"
+      >
+        ADD
+      </button>
+    </mat-dialog-actions>
+  </form>
+</mat-dialog-content>

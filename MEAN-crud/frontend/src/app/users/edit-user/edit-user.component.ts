@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import {
   FormControl,
@@ -9,14 +9,19 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { UserService } from '../../services/user.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { User } from '../../models/user.model';
 
 @Component({
-  selector: 'app-add-user',
+  selector: 'app-edit-user',
   standalone: true,
   imports: [
     MatDialogModule,
@@ -29,44 +34,56 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     MatInputModule,
     MatSnackBarModule,
   ],
-  templateUrl: './add-user.component.html',
-  styleUrl: './add-user.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './edit-user.component.html',
+  styleUrl: './edit-user.component.css',
   providers: [UserService],
 })
-export class AddUserComponent {
+export class EditUserComponent {
   form!: FormGroup;
   inProcess: boolean = false;
+  formValueChanged: boolean = false;
+  initialFormValue: any;
 
   constructor(
+    public dialogRef: MatDialogRef<EditUserComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: User,
     private userService: UserService,
-    private dialogRef: MatDialogRef<AddUserComponent>,
     private snackbar: MatSnackBar
   ) {}
 
   ngOnInit() {
     this.form = new FormGroup({
-      name: new FormControl(null, [
+      name: new FormControl(this.data.name, [
         Validators.required,
         Validators.minLength(1),
         Validators.maxLength(30),
       ]),
-      age: new FormControl(null, [
+      age: new FormControl(this.data.age, [
         Validators.required,
         Validators.min(1),
         Validators.max(80),
       ]),
-      password: new FormControl(null, [
+      password: new FormControl(this.data.password, [
         Validators.required,
         Validators.minLength(4),
         Validators.maxLength(10),
       ]),
-      email: new FormControl(null, [Validators.required, Validators.email]),
-      address: new FormControl(null, [
+      email: new FormControl(this.data.email, [
+        Validators.required,
+        Validators.email,
+      ]),
+      address: new FormControl(this.data.address, [
         Validators.required,
         Validators.minLength(1),
         Validators.maxLength(60),
       ]),
+    });
+    this.initialFormValue = this.form.value;
+    this.form.valueChanges.subscribe(() => {
+      this.formValueChanged = !(
+        JSON.stringify(this.form.value) ===
+        JSON.stringify(this.initialFormValue)
+      );
     });
   }
 
@@ -84,7 +101,8 @@ export class AddUserComponent {
     }
 
     this.userService
-      .addUser(
+      .editUser(
+        this.data._id,
         this.form.value.name,
         this.form.value.age,
         this.form.value.password,
@@ -93,13 +111,16 @@ export class AddUserComponent {
       )
       .subscribe({
         next: (res) => {
-          this.snackbar.open('User added successfully !!!', 'X', {
+          this.snackbar.open('User edited successfully !!!', 'X', {
             duration: 2000,
           });
           this.dialogRef.close(true);
         },
         error: (err) => {
-          this.snackbar.open(err, 'X', { duration: 2000 });
+          console.error('Error:', err);
+          this.snackbar.open(err.message || 'Error editing user', 'X', {
+            duration: 2000,
+          });
           this.dialogRef.close(false);
         },
       });
