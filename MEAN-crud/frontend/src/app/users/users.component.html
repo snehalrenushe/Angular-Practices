@@ -5,11 +5,11 @@
 </h5>
 <br />
 
-<div style="width: 90%; margin: auto">
+<div style="width: 80%; margin: auto">
   <div fxLayout="row wrap">
     <div fxFlex.gt-sm="30">
       <mat-form-field>
-        <mat-label>Filter</mat-label>
+        <mat-label>Search by name,email</mat-label>
         <input
           matInput
           (keyup)="applyFilter($event)"
@@ -27,36 +27,83 @@
   <br />
   <div class="mat-elevation-z8">
     <table mat-table [dataSource]="dataSource" matSort>
+      <!-- Checkbox Column -->
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef class="select-column">
+          <mat-checkbox
+            (change)="$event ? toggleAllRows() : null"
+            [checked]="selection.hasValue() && isAllSelected()"
+            [indeterminate]="selection.hasValue() && !isAllSelected()"
+            [aria-label]="checkboxLabel()"
+          >
+          </mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let row" class="select-column">
+          <mat-checkbox
+            (click)="$event.stopPropagation()"
+            (change)="$event ? selection.toggle(row) : null"
+            [checked]="selection.isSelected(row)"
+            [aria-label]="checkboxLabel(row)"
+          >
+          </mat-checkbox>
+        </td>
+      </ng-container>
+
+      <!-- ID Column -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef class="id-column">#</th>
+        <td mat-cell *matCellDef="let row; let i = index" class="id-column">
+          <span style="color: gray">{{ i + 1 }}</span>
+        </td>
+      </ng-container>
+
       <!-- Name Column -->
       <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>NAME</th>
         <td mat-cell *matCellDef="let row">{{ row.name }}</td>
       </ng-container>
 
       <!-- Email Column -->
-      <ng-container matColumnDef="email">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+      <ng-container matColumnDef="email" style="background-color: aqua">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>EMAIL</th>
         <td mat-cell *matCellDef="let row">{{ row.email }}</td>
       </ng-container>
 
       <!-- Age Column -->
-      <ng-container matColumnDef="age">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Age</th>
-        <td mat-cell *matCellDef="let row">
+      <ng-container matColumnDef="age" style="background-color: aqua">
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+          class="age-column"
+        >
+          AGE
+        </th>
+        <td mat-cell *matCellDef="let row" class="age-column">
           {{ row.age }}
         </td>
       </ng-container>
 
       <!-- Address Column -->
       <ng-container matColumnDef="address">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Address</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>ADDRESS</th>
         <td mat-cell *matCellDef="let row">{{ row.address }}</td>
       </ng-container>
 
       <!-- Password Column -->
       <ng-container matColumnDef="password">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Password</th>
-        <td mat-cell *matCellDef="let row">{{ row.password }}</td>
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+          style="direction: rtl"
+          class="password-column"
+        >
+          PASSWORD
+        </th>
+        <td mat-cell *matCellDef="let row" class="password-column">
+          <div style="text-align: right">{{ row.password }}</div>
+        </td>
       </ng-container>
 
       <!-- actions Column -->
@@ -106,6 +153,7 @@
       </tr>
     </table>
 
+    <br />
     <mat-paginator
       [pageSizeOptions]="[5, 10, 25, 100]"
       aria-label="Select page of users"

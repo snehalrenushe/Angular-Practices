@@ -16,6 +16,8 @@ import { FlexLayoutServerModule } from '@angular/flex-layout/server';
 import { EditUserComponent } from './edit-user/edit-user.component';
 import { ConfirmationComponentComponent } from '../confirmation-component/confirmation-component.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { SelectionModel } from '@angular/cdk/collections';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-users',
@@ -33,12 +35,15 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     AddUserComponent,
     MatTooltipModule,
     FlexLayoutServerModule,
+    MatCheckboxModule,
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
 })
 export class UsersComponent {
   displayedColumns: string[] = [
+    'select',
+    'id',
     'name',
     'email',
     'age',
@@ -50,6 +55,8 @@ export class UsersComponent {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  selection = new SelectionModel<User>(true, []);
+
   userList: User[] = [];
 
   constructor(
@@ -84,6 +91,33 @@ export class UsersComponent {
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
     }
+  }
+
+  /** Whether the number of selected elements matches the total number of rows. */
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.dataSource.data.length;
+    return numSelected === numRows;
+  }
+
+  /** Selects all rows if they are not all selected; otherwise clear selection. */
+  toggleAllRows() {
+    if (this.isAllSelected()) {
+      this.selection.clear();
+      return;
+    }
+
+    this.selection.select(...this.dataSource.data);
+  }
+
+  /** The label for the checkbox on the passed row */
+  checkboxLabel(row?: User): string {
+    if (!row) {
+      return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
+    }
+    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${
+      row._id + 1
+    }`;
   }
 
   applyFilter(event: Event) {

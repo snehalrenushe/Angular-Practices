@@ -23,3 +23,19 @@ th {
   margin-right: 5px;
   color: #015cbb;
 }
+
+.select-column {
+  width: 100px;
+}
+
+.age-column {
+  width: 100px; /* Adjust the width as needed */
+}
+
+.password-column {
+  width: 100px;
+}
+
+.id-column {
+  width: 100px;
+}
